@@ -1,0 +1,6 @@
+# DNS server configuration
+# -----------------------------------------------------------------------------
+
+# DNS server listening interface
+interface   = '127.0.0.1'
+port        = 53

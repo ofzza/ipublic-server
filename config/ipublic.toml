@@ -1,0 +1,8 @@
+# IPublic configuration
+# -----------------------------------------------------------------------------
+
+# Global (admin) authentication codes
+auth = []
+
+# Storage path
+path = './config/ipublic'

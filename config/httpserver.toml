@@ -1,0 +1,16 @@
+# HAPI HTTP server configuration
+# -----------------------------------------------------------------------------
+
+# HTTP server listening interface
+interface   = '127.0.0.1'
+port        = 3000
+
+# IPublic registration endpoint
+[ipublic.registration]
+  method  = "POST"
+  path    = "/"
+
+# IPublic management endpoint
+[ipublic.management]
+  method  = "GET"
+  path    = "/"

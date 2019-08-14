@@ -1,0 +1,27 @@
+{
+  "name": "ipublic-server",
+  "version": "1.0.0",
+  "description": "Logs client IP addresses and exposes them as DNS subdomains locally or on a supported DNS provider",
+  "main": "index.js",
+  "dependencies": {
+    "@hapi/hapi": "^18.3.1",
+    "dnsd": "^0.9.6",
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15",
+    "toml": "^3.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ofzza/ipublic-server.git"
+  },
+  "author": "ofzza",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ofzza/ipublic-server/issues"
+  },
+  "homepage": "https://github.com/ofzza/ipublic-server#readme"
+}
