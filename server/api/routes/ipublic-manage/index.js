@@ -2,9 +2,8 @@
 // -----------------------------------------------------------------------------
 
 // Load dependencies
-const config      = require('../../../services').config,
-      ipregistry  = require('../../../services').ipregistry;
-      IPublic     = require('../../../data').IPublic;
+const config              = require('../../../services').config,
+      IPublicRegistration = require('../../../data').IPublicRegistration;
 
 // Route definition
 module.exports = [
@@ -17,10 +16,9 @@ module.exports = [
         .response(`
           <ul>
           ${
-            ipregistry
-              .list()
-              .map((reg) => {
-                return `<li>${reg.key}: ${reg.ip}, ${(new Date(reg.time)).toString()}</li>`
+            IPublicRegistration.all
+              .map((ipreg) => {
+                return `<li>${ipreg.key}: ${ipreg.ip}, ${(new Date(ipreg.time)).toString()}</li>`
               })
               .join()
           }

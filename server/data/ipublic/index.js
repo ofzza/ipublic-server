@@ -8,22 +8,23 @@ const path    = require('path'),
       config  = require('../../services/').config;
 
 // Holds all stored IPublic instances
-let instances = null;
+let instances = {};
 
 // IPublic data model
 class IPublic {
 
-  /**
-   * Gets all existing IPublic instances
-   * @readonly
-   * @static
-   */
-  static async getInstances (key = null) {
+  static async init () {
     try {
-      return (instances || (instances = await load())).filter((ipublic) => {
-        return (key === null) || (ipublic.key === key);
-      });
+      instances = await load();
     } catch (err) { throw err; }
+  }
+
+  static get all () { return Object.values(instances); }
+  static getInstance (key = null) {
+    const found = Object.values(instances).filter((ipublic) => {
+      return (ipublic.key === key);
+    });
+    return (found && found.length ? found[0] : null);
   }
 
   constructor ({
@@ -52,14 +53,13 @@ async function load () {
     const storagePath = config.ipublic.path;
     await fs.ensureDir(storagePath);
     const ipublicFiles = (await fs.readdir(storagePath)).map((file) => { return path.join(storagePath, file); }),
-          ipubs = [];
+          result = {};
     for (const file of ipublicFiles) {
       if (path.basename(file).substr(-1 * '.ipublic.toml'.length) === '.ipublic.toml') {
-        ipubs.push(
-          new IPublic(toml.parse((await fs.readFile(file)).toString()))
-        );
+        const ipublic = new IPublic(toml.parse((await fs.readFile(file)).toString()));
+        result[ipublic.key] = ipublic;
       }
     }
-    return ipubs;
+    return result;
   } catch (err) { throw err; }
 }

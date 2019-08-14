@@ -1,0 +1,7 @@
+# DNS providers integrations configuration
+# -----------------------------------------------------------------------------
+
+# Couldflare
+[cloudflare]
+  sync = false
+  apikey = ''

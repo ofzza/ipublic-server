@@ -15,29 +15,36 @@ const config  = require('./services').config;
       await config.load();
     } catch (err) { throw err; }
 
-    // Initialize IR registry
+    // Load IPublic configurations
     try {
-      const ipregistry = require('./services').ipregistry;
-      await ipregistry.init();
-    } catch (err) {
-      throw err;
-    }
+      const IPublic = require('./data').IPublic;
+      await IPublic.init();
+    } catch (err) { throw err; }
+
+    // Load IPublic registrations
+    try {
+      const IPublicRegistration = require('./data').IPublicRegistration;
+      await IPublicRegistration.init();
+    } catch (err) { throw err; }
+
+    // Register DNS providers listening for IPublicRegistration changes
+    try {
+      const IPublicRegistration = require('./data').IPublicRegistration,
+            dnsproviders = require('./services/').dnsproviders;
+      IPublicRegistration.addListener(dnsproviders);
+    } catch (err) { throw err; }
 
     // Initialize HTTP server
     try {
       const api = require('./api');
       await api.init();
-    } catch (err) {
-      throw err;
-    }
+    } catch (err) { throw err; }
 
     // Initialize DNS server
     try {
       const dns = require('./services').dns;
       await dns.init();
-    } catch (err) {
-      throw err;
-    }
+    } catch (err) { throw err; }
 
   } catch (err) {
     console.error(err.message);

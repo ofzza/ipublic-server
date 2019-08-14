@@ -14,7 +14,7 @@ Place your IPublic configurations into `./config/ipublic`, or alternatively conf
 Example configuration:
 ```toml
   # Basic info
-  key = 'A'
+  key = 'myUniqueId'
   auth = [
     'myauthkey1',
     'myauthkey2',
@@ -23,7 +23,12 @@ Example configuration:
 
   # Local DNS server registration(s)
   dns = [
-    'testA.ipublic.com'
+    # DNS record:
+    # - type: DNS record type
+    # - name: DNS record property taht will accept regitered IPublic IP value
+    # - ttl: Broadcast TTL of the record
+    # - sync: Array of configured DNS providers to sync the record with (supported: "cloudflare")
+    { type = 'A', name = 'test.ipublic.com', ttl = 300, sync = ["cloudflare"] }
   ]
 ```
 
@@ -32,7 +37,7 @@ Example configuration:
 #### Register IPublic record's current IP
 
 ```sh
-curl -X POST http://localhost:3000 -H "Content-Type: application/json" -d '{ "key": "A", "auth": "tralala!" }'
+curl -X POST http://localhost:3000 -H "Content-Type: application/json" -d '{ "key": "myUniqueId", "auth": "tralala!" }'
 ```
 
 #### List registered records
@@ -43,5 +48,5 @@ curl -X GET http://localhost:3000
 
 #### Use as Name server to resolve registered IPs
 ```sh
-nslookup testA.ipublic.com localhost
+nslookup test.ipublic.com localhost
 ```

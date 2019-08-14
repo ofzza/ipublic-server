@@ -8,6 +8,8 @@
     "dnsd": "^0.9.6",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.15",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
     "toml": "^3.0.0"
   },
   "devDependencies": {},

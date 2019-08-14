@@ -2,9 +2,9 @@
 // -----------------------------------------------------------------------------
 
 // Load dependencies
-const config      = require('../../../services').config;
-      ipregistry  = require('../../../services').ipregistry;
-      IPublic     = require('../../../data').IPublic;
+const config              = require('../../../services').config;
+      IPublic             = require('../../../data').IPublic,
+      IPublicRegistration = require('../../../data').IPublicRegistration;
 
 // Route definition
 module.exports = [
@@ -14,21 +14,27 @@ module.exports = [
     handler: async (request, h) => {
       
       // Find IPublic being registered
-      const key = request.payload.key,            
-            ipublics = await IPublic.getInstances(key);
-      if (!ipublics || (ipublics.length !== 1)) {
+      const key = request.payload.key,
+            ipublic = IPublic.getInstance(key);
+      if (!ipublic) {
         return h.response(`Key ${key} not allowed!`).code(500)
       }
-      const ipublic = ipublics[0],
-            auth = request.payload.auth;
+      // Check auth
+      const auth = request.payload.auth;
       if ((ipublic.auth.indexOf(auth) === -1) && (config.ipublic.auth.indexOf(auth) === -1)) {
         return h.response(`Failed authenticating!`).code(500)
       }
-      // Register updaed IP
-      const remoteIP = request.info.remoteAddress;
-      ipregistry.register(ipublic, remoteIP);
+      // Check if already registered, if not register
+      let ipreg = IPublicRegistration.getInstance(key);
+      if (!ipreg) { ipreg = new IPublicRegistration({ key }); }
+      // Register updated IP
+      try {
+        await ipreg.update(request.info.remoteAddress);
+      } catch (err) {
+        return h.response(err.message).code(500)
+      }
       // Return registered
-      return 'ok';
+      return ipreg;
     }
   }
 ];

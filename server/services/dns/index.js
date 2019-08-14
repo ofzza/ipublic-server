@@ -2,9 +2,9 @@
 // -----------------------------------------------------------------------------
 
 // Load dependencies
-const dnsd        = require('dnsd'),
-      config      = require('../').config,
-      ipregistry  = require('../').ipregistry;
+const dnsd                = require('dnsd'),
+      config              = require('../').config,
+      IPublicRegistration = require('../../data').IPublicRegistration;
 
 module.exports.init = async () => {
   try {
@@ -19,35 +19,24 @@ module.exports.init = async () => {
 async function dnsRequestHandlerFn (req, res) {
   try {
     if ((req.opcode === 'query') && (req.question.length)) {
-      const record = req.question[0]
-      if (record.type === 'A') {
-        const domain = record.name;
+      const record = req.question[0];
 
-        // Search for registered IPublic record with requested domain
-        const ipregs = {},
-              ipublics = {};
-        for (const ipreg of ipregistry.list()) {
-          const key = ipreg.key;
-          ipregs[key] = ipreg;
-          ipublics[key] = await ipreg.getIPublic();
-        }
-        const ipublic = Object.values(ipublics)
-          .find((ipublic) => {
-            if (ipublic.dns && ipublic.dns.length) {
-              return (ipublic.dns.indexOf(domain) !== -1)
-            } else {
-              return false;
-            }
-          })
-        if (ipublic) {
-          // Resolve IP
-          res.end(ipregs[ipublic.key].ip);
-        } else {
-          // Fail resolving
-          res.end();
-        }
+      // Search for registered IPublic record with requested domain
+      const found = IPublicRegistration.all
+        .find((ipreg) => {
+          if (ipreg.ipublic && ipreg.ipublic.dns && ipreg.ipublic.dns.length) {
+            const matched = ipreg.ipublic.dns.find((dns) => {
+              return (dns.type === record.type) && (dns.name === record.name);
+            });
+            return !!matched;
+          } else {
+            return false;
+          }
+        });
 
-      }
+      // Resolve IP
+      res.end(found ? found.ip : null);
+
     }
   } catch (err) { throw err; }
 }
