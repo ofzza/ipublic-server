@@ -2,10 +2,12 @@
 // -----------------------------------------------------------------------------
 
 // Load dependencies
-const path    = require('path'),
-      fs      = require('fs-extra'),
-      toml    = require('toml'),
-      config  = require('../../services/').config;
+const path                = require('path'),
+      fs                  = require('fs-extra'),
+      toml                = require('toml'),
+      config              = require('../../services/').config,
+      IPublicDnsProvider  = require('./dnsprovider');
+      IPublicDnsRecord    = require('./dnsrecord');
 
 // Holds all stored IPublic instances
 let instances = {};
@@ -30,13 +32,19 @@ class IPublic {
   constructor ({
     key = null,
     auth = [],
+    providers = {},
     dns = []
   } = {}) {
 
     // Store properties
     if (key !== null) { this.key = key; }
     if (auth !== null) { this.auth = auth; }
-    if (dns !== null) { this.dns = dns; }
+    if (providers !== null) {
+      this.providers = Object.values(providers).map((p) => IPublicDnsProvider.create(p));
+    }
+    if (dns !== null) {
+      this.dns = dns.map((d) => new IPublicDnsRecord(d));
+    }
 
   }
 

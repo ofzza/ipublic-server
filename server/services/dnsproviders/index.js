@@ -6,8 +6,19 @@ const config      = require('../').config,
       cloudflare  = require('./cloudflare');
 
 module.exports = async (ipreg) => {
+  const result = [];
+
   try {
     // Check if syncing with cloudflare
-    if (config.dnsproviders.cloudflare.sync) { await cloudflare(ipreg); }
+    const providers = ipreg.ipublic.providers.filter((p) => {
+      return (p.provider === 'cloudflare.com');
+    });
+    if (providers && providers.length) { 
+      for (const provider of providers) {
+        result.push(await cloudflare(ipreg, provider));
+      }
+    }
   } catch (err) { throw err; }
+
+  return result;
 }

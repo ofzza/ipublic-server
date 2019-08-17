@@ -29,12 +29,11 @@ module.exports = [
       if (!ipreg) { ipreg = new IPublicRegistration({ key }); }
       // Register updated IP
       try {
-        await ipreg.update(request.info.remoteAddress);
+        const update = await ipreg.update(request.payload.ip || request.info.remoteAddress);
+        return update;
       } catch (err) {
         return h.response(err.message).code(500)
       }
-      // Return registered
-      return ipreg;
     }
   }
 ];

@@ -5,33 +5,35 @@
 const request = require('request-promise-native'),
       config  = require('../../').config;
 
-module.exports = async (ipreg) => {
+module.exports = async (ipreg, provider) => {
   try {
     // Find DNS records to sync
     const ip = ipreg.ip,
-          apikey = config.dnsproviders.cloudflare.apikey,
-          records = ipreg.ipublic.dns.filter((dns) => {
-            return (dns.sync.indexOf('cloudflare') !== -1);
-          });
+          apikey = provider.apikey;
     // Update all records matching a zone
-    const zones = await getZones();
-    for (const record of records) {
+    const zones = await getZones(provider);
+    for (const record of provider.dns) {
       const zone = zones.find((z) => {
         return (record.name.length >= z.name.length) && (record.name.substr(-1 * z.name.length).toLowerCase() === z.name.toLowerCase());
       });
-      if (zone) { await updateRecord(zone.id, record, ipreg.ip); }
+      if (zone) {
+        await updateRecord(provider, zone.id, record, ipreg.ip);
+        return `Successfully updated ${provider.provider} record [${record.type} ${record.name}] as ${ipreg.ip}.`;
+      } else {
+        return `Failed finding a zone containing record [${record.type} ${record.name}]!`;
+      }
     }
   } catch (err) { throw err; }
 }
 
-async function getZones () {
+async function getZones (provider) {
   try {
     const res = await request({
       method: 'GET',
       uri: `https://api.cloudflare.com/client/v4/zones/`,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.dnsproviders.cloudflare.apikey}`
+        'Authorization': `Bearer ${provider.apikey}`
       },
       json: true
     });
@@ -45,7 +47,7 @@ async function getZones () {
   }
 }
 
-async function updateRecord (zoneId, record, ip) {
+async function updateRecord (provider, zoneId, record, ip) {
   try {
     // Get target record
     const res = await request({
@@ -53,7 +55,7 @@ async function updateRecord (zoneId, record, ip) {
       uri: `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.dnsproviders.cloudflare.apikey}`
+        'Authorization': `Bearer ${provider.apikey}`
       },
       json: true
     });
@@ -68,7 +70,7 @@ async function updateRecord (zoneId, record, ip) {
         uri: `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records/${target.id}`,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.dnsproviders.cloudflare.apikey}`
+          'Authorization': `Bearer ${provider.apikey}`
         },
         body: {
           type: record.type,
@@ -79,12 +81,18 @@ async function updateRecord (zoneId, record, ip) {
         json: true
       });
 
+    } else {
+      throw new Error(
+        `Cloudflare update ERROR: Failed finding record [${record.type} ${record.name}]!`
+      );
     }
+
   } catch (err) {
     throw new Error(
-      'Cloudflare update ERROR: ' + err.error.errors.map((err) => {
-        return err.message;
-      }).join('; ')
+      'Cloudflare update ERROR: '
+      + err.error.errors.map((err) => {
+          return err.message;
+        }).join('; ')
     );
   }
 }

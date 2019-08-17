@@ -22,20 +22,25 @@ async function dnsRequestHandlerFn (req, res) {
       const record = req.question[0];
 
       // Search for registered IPublic record with requested domain
-      const found = IPublicRegistration.all
-        .find((ipreg) => {
-          if (ipreg.ipublic && ipreg.ipublic.dns && ipreg.ipublic.dns.length) {
-            const matched = ipreg.ipublic.dns.find((dns) => {
-              return (dns.type === record.type) && (dns.name === record.name);
-            });
-            return !!matched;
-          } else {
-            return false;
-          }
+      for (const ipreg of IPublicRegistration.all) {
+        // Search for matching DNS record
+        const dns = ipreg.ipublic.dns.find((dns) => {
+          return (dns.type === record.type) && (dns.name === record.name);
         });
+        // If matched DNS record, resolve either preset record value or registered IPublic IP
+        if (dns) {
+          res.answer.push({
+            type: dns.type,
+            name: dns.name,
+            data: (dns.value || ipreg.ip),
+            ttl:  dns.ttl
+          });
+          return res.end();
+        }
+      }
 
-      // Resolve IP
-      res.end(found ? found.ip : null);
+      // Resolve resolution failed
+      res.end();
 
     }
   } catch (err) { throw err; }

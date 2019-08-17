@@ -58,17 +58,22 @@ class IPublicRegistration {
 
   async update (ip) {
     // Update registration
-    if (this.ip !== ip) {
+    if (true||this.ip !== ip) {
       // Store changes
       this.ip = ip;
       this.mtime = Date.now();
       save(instances);
       // Notify listeners
+      const result = [`Registered IP change: ${ip}`];
       for (const listenerFn of listeners) {
         try {
-          await listenerFn(this);
+          const results = await listenerFn(this);
+          for (const r of results) { result.push(r); }
         } catch (err) { throw err; }
       }
+      return result;
+    } else {
+      return 'IP unchanged.'
     }
   }
 
