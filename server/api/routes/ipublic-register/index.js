@@ -29,8 +29,11 @@ module.exports = [
       if (!ipreg) { ipreg = new IPublicRegistration({ key }); }
       // Register updated IP
       try {
-        const update = await ipreg.update(request.payload.ip || request.headers['x-real-ip'] || request.info.remoteAddress);
-        return update;
+        const ip = request.payload.ip // Spoofed IP
+                || (request.headers['x-forwarded-for'] ? request.headers['x-forwarded-for'].split(',')[0] : null) // Reverse proxy
+                || request.headers['x-real-ip'] // Reverse proxy, NGINX
+                || request.info.remoteAddress; // Request IP
+        return await ipreg.update(ip);
       } catch (err) {
         return h.response(err.message).code(500)
       }

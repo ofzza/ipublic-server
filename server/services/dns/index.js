@@ -74,8 +74,12 @@ async function load () {
     await fs.ensureFile(storegeFilename);
     const registryContent = (await fs.readFile(storegeFilename)).toString(),
           registry = (registryContent && registryContent.length ? toml.parse(registryContent) : {});
-    return registry.dns.map((dns) => {
-      return new IPublicDnsRecord(dns)
-    });
+    if (registry.dns) {
+      return registry.dns.map((dns) => {
+        return new IPublicDnsRecord(dns)
+      });
+    } else {
+      return [];
+    }
   } catch (err) { throw err; }
 }
