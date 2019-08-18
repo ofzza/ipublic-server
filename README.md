@@ -46,6 +46,18 @@ Example configuration:
       ]
 ```
 
+## Static DNS records
+
+Place your static DNS configuration into `./config/ipublic`, or alternatively configured directory as `dns.toml`.
+
+Example configuration:
+```
+# Static DNS entries
+dns = [
+  { type = 'MX', name = 'mydomain.com', value = 'mail.mailer.com', ttl = 300 }
+]
+```
+
 ### Usage
 
 #### Register IPublic record's current IP
