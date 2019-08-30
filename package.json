@@ -21,7 +21,7 @@
     "url": "git+https://github.com/ofzza/ipublic-server.git"
   },
   "author": "ofzza",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ofzza/ipublic-server/issues"
   },
