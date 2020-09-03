@@ -4,7 +4,7 @@
   "description": "Logs client IP addresses and exposes them as DNS subdomains locally or on a supported DNS provider",
   "main": "index.js",
   "dependencies": {
-    "@hapi/hapi": "^18.3.1",
+    "@hapi/hapi": "^19.1.1",
     "dnsd": "^0.9.6",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.15",
